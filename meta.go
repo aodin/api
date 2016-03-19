@@ -15,9 +15,13 @@ type Meta struct {
 	Limit  int           `json:"limit"`
 	Offset int           `json:"offset"`
 	Errors *errors.Error `json:"errors,omitempty"`
-	order  Orders
-	valid  url.Values // successfully parsed URL parameters
-	dirty  url.Values // unsanitized URL parameters
+	order  Orders        // TODO keep separate?
+	valid  url.Values    // successfully parsed URL parameters
+	dirty  url.Values    // unsanitized URL parameters
+}
+
+func (meta Meta) UnsanitizedGet(key string) string {
+	return meta.dirty.Get(key)
 }
 
 // Has returns true if the key exists in the meta's dirty values
@@ -29,6 +33,16 @@ func (meta Meta) Has(key string) bool {
 // Order returns the meta's ordering
 func (meta Meta) Order() Orders {
 	return meta.order
+}
+
+// TODO whitelist
+func (meta *Meta) ParseOrder(key string, whitelist ...Order) {
+	meta.order = ParseOrders(meta.dirty.Get(key), whitelist...)
+	meta.valid.Set(key, meta.order.String())
+}
+
+func (meta *Meta) SetOrder(order Orders) {
+	meta.order = order
 }
 
 // Sanitization
@@ -168,4 +182,11 @@ func (meta *Meta) YearMonth() (year int, month time.Month, err error) {
 
 	year = meta.Positive("year") // TODO default or error values?
 	return
+}
+
+func NewMeta(dirty url.Values) Meta {
+	return Meta{
+		valid: url.Values{},
+		dirty: dirty,
+	}
 }
