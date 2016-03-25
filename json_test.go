@@ -8,6 +8,13 @@ import (
 	"github.com/aodin/errors"
 )
 
+// Create a mock response the implements the Response interface
+type response string
+
+func (r response) AddErrors(err *errors.Error) {}
+
+var _ Response = response("")
+
 // JSON should implement the Serializer interface
 var _ Serializer = JSON{}
 
@@ -41,7 +48,7 @@ func TestJSON(t *testing.T) {
 
 	// Write a 200
 	w = httptest.NewRecorder()
-	serializer.Write(w, "OUT", nil)
+	serializer.Write(w, response("OUT"), nil)
 	if http.StatusOK != w.Code {
 		t.Errorf(
 			"unexpected status code: %d != %d",

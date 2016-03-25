@@ -28,10 +28,10 @@ func (c JSON) Encode(out io.Writer, obj interface{}) error {
 }
 
 // Write writes the response code, content type and response
-func (c JSON) Write(w http.ResponseWriter, r interface{}, err *errors.Error) {
+func (c JSON) Write(w http.ResponseWriter, resp Response, err *errors.Error) {
 	w.Header().Set("Content-Type", c.MediaType())
 
-	if err == nil && r == nil {
+	if err == nil && resp == nil {
 		// No errors and an empty response: status 204
 		w.WriteHeader(http.StatusNoContent)
 		return
@@ -39,12 +39,17 @@ func (c JSON) Write(w http.ResponseWriter, r interface{}, err *errors.Error) {
 	if err != nil { // TODO Confirm that the err is empty?
 		// Error response
 		w.WriteHeader(err.Code)
-		c.Encode(w, r)
+		if resp == nil {
+			c.Encode(w, err)
+		} else {
+			resp.AddErrors(err)
+			c.Encode(w, resp)
+		}
 		return
 	}
 
 	// Otherwise, write a status OK response
-	c.Encode(w, r)
+	c.Encode(w, resp)
 }
 
 func (c JSON) MediaType() string {

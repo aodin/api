@@ -12,7 +12,7 @@ type Serializer interface {
 	Decoder
 	Encoder
 	MediaType() string
-	Write(http.ResponseWriter, interface{}, *errors.Error)
+	Write(http.ResponseWriter, Response, *errors.Error)
 }
 
 // Decoder is the common decoding interface
