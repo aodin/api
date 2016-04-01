@@ -41,8 +41,18 @@ func (meta *Meta) ParseOrder(key string, whitelist ...Order) {
 	meta.valid.Set(key, meta.order.String())
 }
 
+// Set sets a valid key and value
+func (meta *Meta) Set(key, value string) {
+	meta.valid.Set(key, value)
+}
+
 func (meta *Meta) SetOrder(order Orders) {
 	meta.order = order
+}
+
+// Valid returns the valid url.Values
+func (meta Meta) Valid() url.Values {
+	return meta.valid
 }
 
 // Sanitization
