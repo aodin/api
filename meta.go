@@ -15,7 +15,7 @@ type Meta struct {
 	Limit  int           `json:"limit"`
 	Offset int           `json:"offset"`
 	Errors *errors.Error `json:"errors,omitempty"`
-	order  Orders        // TODO keep separate?
+	orders Orders        // TODO keep separate?
 	valid  url.Values    // successfully parsed URL parameters
 	dirty  url.Values    // unsanitized URL parameters
 }
@@ -37,13 +37,16 @@ func (meta Meta) Has(key string) bool {
 
 // Order returns the meta's ordering
 func (meta Meta) Order() Orders {
-	return meta.order
+	return meta.orders
 }
 
 // TODO whitelist
-func (meta *Meta) ParseOrder(key string, whitelist ...Order) {
-	meta.order = ParseOrders(meta.dirty.Get(key), whitelist...)
-	meta.valid.Set(key, meta.order.String())
+func (meta *Meta) ParseOrder(key string, whitelist ...Order) Orders {
+	meta.orders = ParseOrders(meta.dirty.Get(key), whitelist...)
+	if meta.orders.Exist() {
+		meta.valid.Set(key, meta.orders.String())
+	}
+	return meta.orders
 }
 
 // Set sets a valid key and value
@@ -51,8 +54,8 @@ func (meta *Meta) Set(key, value string) {
 	meta.valid.Set(key, value)
 }
 
-func (meta *Meta) SetOrder(order Orders) {
-	meta.order = order
+func (meta *Meta) SetOrder(orders Orders) {
+	meta.orders = orders
 }
 
 // Valid returns the valid url.Values

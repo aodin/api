@@ -86,6 +86,16 @@ func TestMeta(t *testing.T) {
 	// assert.Equal(t, []string(nil), meta.valid["inactive"])
 }
 
+func TestMeta_ParseOrder(t *testing.T) {
+	meta := Meta{dirty: url.Values{"order": {}}, valid: url.Values{}}
+	meta.ParseOrder("order")
+
+	// If there are no order values, order should not be saved to values
+	if _, exists := meta.valid["order"]; exists {
+		t.Error("order should not be saved to values when no orders exist")
+	}
+}
+
 func TestMeta_Delete(t *testing.T) {
 	meta := Meta{dirty: url.Values{"campus": {"1"}}, valid: url.Values{}}
 	if meta.Positive("campus") != 1 {

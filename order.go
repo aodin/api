@@ -16,6 +16,10 @@ func (order Order) String() string {
 
 type Orders []Order
 
+func (orders Orders) Exist() bool {
+	return len(orders) > 0
+}
+
 func (orders Orders) String() string {
 	strs := make([]string, len(orders))
 	for i, order := range orders {
