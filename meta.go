@@ -24,6 +24,11 @@ func (meta Meta) UnsanitizedGet(key string) string {
 	return meta.dirty.Get(key)
 }
 
+// Delete deletes a valid key
+func (meta *Meta) Delete(key string) {
+	delete(meta.valid, key)
+}
+
 // Has returns true if the key exists in the meta's dirty values
 func (meta Meta) Has(key string) bool {
 	_, has := meta.dirty[key]

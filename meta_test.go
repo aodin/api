@@ -85,3 +85,19 @@ func TestMeta(t *testing.T) {
 	// assert.NotNil(t, err, "Meta boolean parsing of a blank bool should error")
 	// assert.Equal(t, []string(nil), meta.valid["inactive"])
 }
+
+func TestMeta_Delete(t *testing.T) {
+	meta := Meta{dirty: url.Values{"campus": {"1"}}, valid: url.Values{}}
+	if meta.Positive("campus") != 1 {
+		t.Error("unexpected meta.Positive != 1")
+	}
+
+	meta.Delete("campus")
+
+	if len(meta.valid) != 0 {
+		t.Error(
+			"unexpected number of values post-delete: %d != 1",
+			len(meta.valid),
+		)
+	}
+}
