@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-
-	"github.com/aodin/errors"
 )
 
 const MediaTypeJSON = "application/json"
@@ -23,33 +21,14 @@ func (c JSON) Decode(data io.ReadCloser, dest interface{}) error {
 
 // Encode writes the given interface as JSON
 func (c JSON) Encode(out io.Writer, obj interface{}) error {
-	// Encoding is still buffered as of Go 1.6
+	// JSON Encode is still buffered as of Go 1.6
 	return json.NewEncoder(out).Encode(obj)
 }
 
-// Write writes the response code, content type and response
-func (c JSON) Write(w http.ResponseWriter, resp Response, err *errors.Error) {
+// Write writes the content type and response
+func (c JSON) Write(w http.ResponseWriter, resp interface{}) error {
 	w.Header().Set("Content-Type", c.MediaType())
-
-	if err == nil && resp == nil {
-		// No errors and an empty response: status 204
-		w.WriteHeader(http.StatusNoContent)
-		return
-	}
-	if err != nil { // TODO Confirm that the err is empty?
-		// Error response
-		w.WriteHeader(err.Code)
-		if resp == nil {
-			c.Encode(w, err)
-		} else {
-			resp.AddErrors(err)
-			c.Encode(w, resp)
-		}
-		return
-	}
-
-	// Otherwise, write a status OK response
-	c.Encode(w, resp)
+	return c.Encode(w, resp)
 }
 
 func (c JSON) MediaType() string {

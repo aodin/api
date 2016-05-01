@@ -1,19 +1,11 @@
 package api
 
 import (
-	"net/http"
+	"bytes"
+	"encoding/json"
 	"net/http/httptest"
 	"testing"
-
-	"github.com/aodin/errors"
 )
-
-// Create a mock response the implements the Response interface
-type response string
-
-func (r response) AddErrors(err *errors.Error) {}
-
-var _ Response = response("")
 
 // JSON should implement the Serializer interface
 var _ Serializer = JSON{}
@@ -30,30 +22,17 @@ func TestJSON(t *testing.T) {
 
 	var w *httptest.ResponseRecorder
 
-	// Write a 204
-	w = httptest.NewRecorder()
-	serializer.Write(w, nil, nil)
-	if http.StatusNoContent != w.Code {
-		t.Errorf(
-			"unexpected status code: %d != %d",
-			w.Code, http.StatusNoContent,
-		)
-	}
-	if w.Header().Get("Content-Type") != "application/json" {
-		t.Errorf(
-			"unexpected header content type: %s != %s",
-			w.Header().Get("Content-Type"), MediaTypeJSON,
-		)
+	// Response
+	resp := struct {
+		Message string
+	}{
+		Message: "yes",
 	}
 
-	// Write a 200
+	// Write a response
 	w = httptest.NewRecorder()
-	serializer.Write(w, response("OUT"), nil)
-	if http.StatusOK != w.Code {
-		t.Errorf(
-			"unexpected status code: %d != %d",
-			w.Code, http.StatusOK,
-		)
+	if err := serializer.Write(w, resp); err != nil {
+		t.Fatalf("valid JSON Write should not error: %s", err)
 	}
 	if w.Header().Get("Content-Type") != "application/json" {
 		t.Errorf(
@@ -61,20 +40,13 @@ func TestJSON(t *testing.T) {
 			w.Header().Get("Content-Type"), MediaTypeJSON,
 		)
 	}
-
-	// Write an error
-	w = httptest.NewRecorder()
-	serializer.Write(w, nil, errors.Meta(http.StatusBadRequest, "oops"))
-	if http.StatusBadRequest != w.Code {
+	// http.ResponseWriter will add a newline
+	b, _ := json.Marshal(resp)
+	b = append(b, []byte("\n")...)
+	if !bytes.Equal(w.Body.Bytes(), b) {
 		t.Errorf(
-			"unexpected status code: %d != %d",
-			w.Code, http.StatusBadRequest,
-		)
-	}
-	if w.Header().Get("Content-Type") != "application/json" {
-		t.Errorf(
-			"unexpected header content type: %s != %s",
-			w.Header().Get("Content-Type"), MediaTypeJSON,
+			"recorded response should equal JSON output: %s != %s",
+			w.Body.Bytes(), b,
 		)
 	}
 }

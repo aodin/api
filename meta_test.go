@@ -23,6 +23,13 @@ func TestMeta(t *testing.T) {
 
 	meta := Meta{dirty: values, valid: url.Values{}}
 
+	if meta.DirtyGet("limit") != "10" {
+		t.Errorf(
+			"unexpected dirty value for 'limit': %s != 10",
+			meta.DirtyGet("limit"),
+		)
+	}
+
 	// Has
 	if !meta.Has("campus") {
 		t.Error("campus should be in meta")

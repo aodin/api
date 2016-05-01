@@ -20,8 +20,14 @@ type Meta struct {
 	dirty  url.Values    // unsanitized URL parameters
 }
 
+// UnsanitizedGet returns the value of a key from the dirty url Values
 func (meta Meta) UnsanitizedGet(key string) string {
 	return meta.dirty.Get(key)
+}
+
+// DirtyGet is an alias for UnsanitizedGet
+func (meta Meta) DirtyGet(key string) string {
+	return meta.UnsanitizedGet(key)
 }
 
 // Delete deletes a valid key

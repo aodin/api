@@ -3,8 +3,6 @@ package api
 import (
 	"io"
 	"net/http"
-
-	"github.com/aodin/errors"
 )
 
 // Serializer reads and writes API responses
@@ -12,7 +10,7 @@ type Serializer interface {
 	Decoder
 	Encoder
 	MediaType() string
-	Write(http.ResponseWriter, Response, *errors.Error)
+	Write(http.ResponseWriter, interface{}) error
 }
 
 // Decoder is the common decoding interface
