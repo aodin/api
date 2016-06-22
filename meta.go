@@ -12,7 +12,7 @@ import (
 
 // Meta contains limit, offset, and optional errors for the response.
 type Meta struct {
-	Limit  int           `json:"limit"`
+	Limit  int           `json:"limit,omitempty"`
 	Offset int           `json:"offset"`
 	Errors *errors.Error `json:"errors,omitempty"`
 	orders Orders        // TODO keep separate?
